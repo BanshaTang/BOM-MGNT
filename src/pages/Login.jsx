@@ -7,7 +7,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 模拟的用户数据，实际应该从后端获取
+  // 假设的用户数据，您可以根据需要替换为从数据库或API获取的用户数据
   const validUsers = [
     { username: 'admin', password: 'admin123' },
     { username: 'user1', password: 'user123' }

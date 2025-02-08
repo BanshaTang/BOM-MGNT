@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { List, Card, message, Input, Space, Tag } from 'antd';
 import { getCategories } from '../utils/api';
-import CategoryDetailModal from '../components/CategoryDetailModal';
-import LoadingState from '../components/LoadingState';
-import ErrorRetry from '../components/ErrorRetry';
+// import CategoryDetailModal from '../components/CategoryDetailModal';
+// import LoadingState from '../components/LoadingState';
+// import ErrorRetry from '../components/ErrorRetry';
 
 const { Search } = Input;
 
@@ -37,14 +37,6 @@ const Categories = () => {
     category.name.toLowerCase().includes(searchText.toLowerCase()) ||
     category.description?.toLowerCase().includes(searchText.toLowerCase())
   );
-
-  if (loading) {
-    return <LoadingState />;
-  }
-
-  if (error) {
-    return <ErrorRetry onRetry={fetchCategories} />;
-  }
 
   return (
     <div>
@@ -91,12 +83,6 @@ const Categories = () => {
             </Card>
           </List.Item>
         )}
-      />
-
-      <CategoryDetailModal
-        category={selectedCategory}
-        visible={!!selectedCategory}
-        onClose={() => setSelectedCategory(null)}
       />
     </div>
   );

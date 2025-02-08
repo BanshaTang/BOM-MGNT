@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { List, Card, message, Input, Select, Space, Tag } from 'antd';
 import { getMaterials } from '../utils/api';
-import MaterialDetailModal from '../components/MaterialDetailModal';
-import LoadingState from '../components/LoadingState';
-import ErrorRetry from '../components/ErrorRetry';
-import LazyImage from '../components/LazyImage';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -47,14 +43,6 @@ const Materials = () => {
       return b.costPrice - a.costPrice;
     });
 
-  if (loading) {
-    return <LoadingState />;
-  }
-
-  if (error) {
-    return <ErrorRetry onRetry={fetchMaterials} />;
-  }
-
   return (
     <div>
       <Space style={{ marginBottom: 20 }}>
@@ -96,7 +84,7 @@ const Materials = () => {
               hoverable
               cover={
                 material.imageUrl && (
-                  <LazyImage
+                  <img
                     src={material.imageUrl}
                     alt={material.name}
                     style={{ height: 200 }}
@@ -123,12 +111,6 @@ const Materials = () => {
             </Card>
           </List.Item>
         )}
-      />
-
-      <MaterialDetailModal
-        material={selectedMaterial}
-        visible={!!selectedMaterial}
-        onClose={() => setSelectedMaterial(null)}
       />
     </div>
   );

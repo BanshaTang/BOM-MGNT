@@ -17,13 +17,13 @@ const TABLE_IDS = {
 // 字段 ID 常量
 const FIELD_IDS = {
   // Products 表字段
-  NAME: 'fldNagyxNT',
-  TYPE: 'fldEbCVsBl',
-  SPECS: 'fldAfD90Uc',
+  NAME: 'fldNagyxNT5xZbPcU',
+  TYPE: 'fldEbCVsBllbiZqls',
+  SPECS: 'fldAfD90Uc7GM57t9',
   MARKET: 'fldlznPxWI3WxbNDK',
-  COLOR: 'fldb83HS86R1UKOSZ',
+  COLOR: 'fldb83HS86R1UKO5Z',
   IMG: 'fldnACeljAc5EbXXD',
-  MATERIALS: 'fld3c6fJHkglEEaC5',
+  MATERIALS: 'fld3c6fJHkg1EEaC5',
   
   // Categories 表字段
   CATEGORY_NAME: 'fldIq0ewzF0ULgote',
@@ -73,20 +73,20 @@ export const getProducts = async () => {
         view: 'Grid view'
       })
       .all();
-
+    console.log(records); // 添加调试信息
     return records.map(record => ({
       id: record.id,
-      modelName: record.get(FIELD_IDS.NAME),
-      type: record.get(FIELD_IDS.TYPE),
-      specs: record.get(FIELD_IDS.SPECS),
-      market: record.get(FIELD_IDS.MARKET),
-      color: record.get(FIELD_IDS.COLOR),
-      imageUrl: record.get(FIELD_IDS.IMG)?.[0]?.url,
-      materialIds: record.get(FIELD_IDS.MATERIALS) || [],
+      modelName: record.get('Type Name'),
+      type: record.get('Type'),
+      specs: record.get('Specs'),
+      market: record.get('Market'),
+      color: record.get('Color'),
+      imageUrl: record.get('IMG')?.[0]?.url,
+      materialIds: record.get('Materials') || [],
       _raw: record
     }));
   } catch (error) {
-    console.error('获取产品列表错误:', error, '使用的 Base ID:', BASE_ID);
+    console.error('获取产品列表错误:', error);
     throw error;
   }
 };
