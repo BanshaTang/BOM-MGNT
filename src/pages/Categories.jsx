@@ -1,24 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, Card, message, Input, Space, Tag } from 'antd';
+import { List, Card, message, Spin, Tag } from 'antd';
 import { getCategories } from '../utils/api';
 // import CategoryDetailModal from '../components/CategoryDetailModal';
 // import LoadingState from '../components/LoadingState';
 // import ErrorRetry from '../components/ErrorRetry';
 
-const { Search } = Input;
-
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [searchText, setSearchText] = useState('');
 
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       setError(false);
       const data = await getCategories();
+      console.log('获取的分类数据:', data);
       setCategories(data);
     } catch (error) {
       console.error('获取物料分类失败:', error);
@@ -33,25 +30,16 @@ const Categories = () => {
     fetchCategories();
   }, [fetchCategories]);
 
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    category.description?.toLowerCase().includes(searchText.toLowerCase())
-  );
+  if (loading) {
+    return <Spin tip="加载中..." />;
+  }
+
+  if (error) {
+    return <div>发生错误，请重试。</div>;
+  }
 
   return (
     <div>
-      <Space direction="vertical" style={{ width: '100%', marginBottom: 20 }}>
-        <Search
-          placeholder="搜索分类名称或描述"
-          allowClear
-          style={{ width: 300 }}
-          onChange={e => setSearchText(e.target.value)}
-        />
-        <div>
-          找到 {filteredCategories.length} 个分类
-        </div>
-      </Space>
-
       <List
         grid={{ 
           gutter: 16,
@@ -62,20 +50,19 @@ const Categories = () => {
           xl: 4,
           xxl: 6,
         }}
-        dataSource={filteredCategories}
+        dataSource={categories}
         renderItem={category => (
-          <List.Item>
+          <List.Item key={category.id}>
             <Card 
               hoverable
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => console.log(`选择分类: ${category.fields.Name}`)}
             >
               <Card.Meta
-                title={category.name}
+                title={category.fields.Name}
                 description={
                   <>
-                    <p>{category.description}</p>
                     <Tag color="blue">
-                      关联物料: {category.materialIds?.length || 0}
+                      包含物料数量: {category.fields.Materials?.length || 0}
                     </Tag>
                   </>
                 }

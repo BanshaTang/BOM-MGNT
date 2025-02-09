@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, Card, message, Input, Select, Space, Tag } from 'antd';
+import { List, Card, message, Input, Select, Space, Tag, Spin } from 'antd';
 import { getMaterials } from '../utils/api';
 
 const { Search } = Input;
@@ -18,7 +18,9 @@ const Materials = () => {
       setLoading(true);
       setError(false);
       const data = await getMaterials();
+      console.log('获取的物料数据:', data);
       setMaterials(data);
+      console.log('当前物料状态:', materials);
     } catch (error) {
       console.error('获取物料详情失败:', error);
       setError(true);
@@ -32,16 +34,24 @@ const Materials = () => {
     fetchMaterials();
   }, [fetchMaterials]);
 
-  const filteredAndSortedMaterials = materials
-    .filter(material =>
-      material.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      material.code.toLowerCase().includes(searchText.toLowerCase())
-    )
+  const filteredMaterials = materials.filter(material => 
+    material.name && material.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const filteredAndSortedMaterials = filteredMaterials
     .sort((a, b) => {
       if (!priceSort) return 0;
       if (priceSort === 'asc') return a.costPrice - b.costPrice;
       return b.costPrice - a.costPrice;
     });
+
+  if (loading) {
+    return <Spin tip="加载中..." />;
+  }
+
+  if (error) {
+    return <div>发生错误，请重试。</div>;
+  }
 
   return (
     <div>
@@ -79,7 +89,7 @@ const Materials = () => {
         }}
         dataSource={filteredAndSortedMaterials}
         renderItem={material => (
-          <List.Item>
+          <List.Item key={material.id}>
             <Card
               hoverable
               cover={
@@ -91,20 +101,26 @@ const Materials = () => {
                   />
                 )
               }
-              onClick={() => setSelectedMaterial(material)}
+              onClick={() => {
+                setSelectedMaterial(material);
+                console.log(`选择物料: ${material.name}`);
+              }}
             >
               <Card.Meta
-                title={material.name}
+                title={material.name || '未命名'}
                 description={
                   <>
-                    <p>料号: {material.code}</p>
-                    <Tag color="green">成本价: {material.costPrice}</Tag>
+                    <p>料号: {material.bomCode}</p>
+                    <Tag color="green">成本价: {material.costPrice || '未定'}</Tag>
                     {material.moRetailPrice && (
-                      <Tag color="blue">澳门零售价: {material.moRetailPrice}</Tag>
+                      <Tag color="blue">澳门零售价: {material.maRetailPrice}</Tag>
                     )}
                     {material.idRetailPrice && (
                       <Tag color="purple">印尼零售价: {material.idRetailPrice}</Tag>
                     )}
+                    <Tag color="blue">
+                      用量: {material.usage || '未定'}
+                    </Tag>
                   </>
                 }
               />

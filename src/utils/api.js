@@ -3,6 +3,7 @@ import Airtable from 'airtable';
 // 配置常量
 const BASE_ID = 'app0FOTiFuW5oLDEX';
 const API_KEY = 'patXOiqNFgRkq6ZPy.47c03e7610e9f4b9e8ca2555695789ecc330b49b607afad2c4db97bec0b3f0e6';
+const BASE_URL = 'https://api.airtable.com/v0';
 
 // 初始化 Airtable
 const base = new Airtable({ apiKey: API_KEY }).base(BASE_ID);
@@ -11,11 +12,11 @@ const base = new Airtable({ apiKey: API_KEY }).base(BASE_ID);
 const TABLE_IDS = {
   PRODUCTS: 'tblbZ4HACIqzQCxrN',
   CATEGORIES: 'tblu09nwcTd2EOUyr',
-  MATERIALS: 'tblr2ZoEV91HMX07C'
+  MATERIALS: 'tblr2ZoEV91HMXO7C'
 };
 
 // 字段 ID 常量
-const FIELD_IDS = {
+export const FIELD_IDS = {
   // Products 表字段
   NAME: 'fldNagyxNT5xZbPcU',
   TYPE: 'fldEbCVsBllbiZqls',
@@ -27,23 +28,23 @@ const FIELD_IDS = {
   
   // Categories 表字段
   CATEGORY_NAME: 'fldIq0ewzF0ULgote',
-  CATEGORY_MATERIALS: 'fldL9BzjlGmgHlDMF',
+  CATEGORY_MATERIALS: 'fldL9Bzjl6mgH1DMF',
 
   // Materials 表字段
   MATERIAL_NAME: 'fldxK3M9akup8wW0p',
   MATERIAL_NAME_ID: 'fldXSWAF0qrYxmjZM',
-  MATERIAL_NAME_MO: 'fldhTlgxI2dbeJN7',
-  MATERIAL_BOM_CODE: 'fld8HkLU0daoDPRg',
+  MATERIAL_NAME_MO: 'fldhTlgxI2dbweIN7',
+  MATERIAL_BOM_CODE: 'fld8HkLU0daoYDPRg',
   MATERIAL_HS_CODE: 'fldhf9AQtwuc6Em0W',
-  MATERIAL_CATEGORY: 'flddAPaC26uacM0l0',
+  MATERIAL_CATEGORY: 'flddAPaC26uacMO10',
   MATERIAL_PRODUCT: 'fldCbKwVrpGTqTVlb',
-  MATERIAL_IMG: 'fldK0RMkDQpwPXM03',
+  MATERIAL_IMG: 'fldK0RMkDQpwPXMO3',
   MATERIAL_USAGE: 'flduegj6FNCv8q75m',
   MATERIAL_COST: 'fldqeqk39T8lVAKG5',
   MATERIAL_ID_SUPPLIER_PRICE: 'fld94Tyq4g7YYDdmV',
-  MATERIAL_MA_SUPPLIER_PRICE: 'fldf2xC0gNVjCtDSK',
-  MATERIAL_ID_RETAIL_PRICE: 'fldoJ1rWSGKLHi1P3',
-  MATERIAL_MA_RETAIL_PRICE: 'fld6v5pp1QvfkQ1KQ'
+  MATERIAL_MA_SUPPLIER_PRICE: 'fldf2xCOgNVjCtDSK',
+  MATERIAL_ID_RETAIL_PRICE: 'fldoJirWSGkLHi1P3',
+  MATERIAL_MA_RETAIL_PRICE: 'fld6v5pp1QvfkQIKQ'
 };
 
 // 处理图片附件
@@ -66,14 +67,14 @@ const processAttachment = (attachment) => {
 // 获取产品列表
 export const getProducts = async () => {
   try {
-    console.log('开始获取产品列表，Base ID:', BASE_ID);
+   
     const records = await base(TABLE_IDS.PRODUCTS)
       .select({
         maxRecords: 100,
         view: 'Grid view'
       })
       .all();
-    console.log(records); // 添加调试信息
+    
     return records.map(record => ({
       id: record.id,
       modelName: record.get('Type Name'),
@@ -86,7 +87,7 @@ export const getProducts = async () => {
       _raw: record
     }));
   } catch (error) {
-    console.error('获取产品列表错误:', error);
+    
     throw error;
   }
 };
@@ -113,8 +114,7 @@ export const getCategories = async () => {
     const data = await response.json();
     return data.records.map(record => ({
       id: record.id,
-      name: record.fields[FIELD_IDS.CATEGORY_NAME],
-      materialIds: record.fields[FIELD_IDS.CATEGORY_MATERIALS] || [],
+      fields: record.fields, // 确保返回 fields
       _raw: record
     }));
   } catch (error) {
@@ -143,23 +143,29 @@ export const getMaterials = async () => {
     }
 
     const data = await response.json();
-    return data.records.map(record => ({
-      id: record.id,
-      name: record.fields[FIELD_IDS.MATERIAL_NAME],
-      nameID: record.fields[FIELD_IDS.MATERIAL_NAME_ID],
-      nameMO: record.fields[FIELD_IDS.MATERIAL_NAME_MO],
-      bomCode: record.fields[FIELD_IDS.MATERIAL_BOM_CODE],
-      hsCode: record.fields[FIELD_IDS.MATERIAL_HS_CODE],
-      imageUrl: record.fields[FIELD_IDS.MATERIAL_IMG]?.[0]?.url,
-      costPrice: record.fields[FIELD_IDS.MATERIAL_COST],
-      idSupplierPrice: record.fields[FIELD_IDS.MATERIAL_ID_SUPPLIER_PRICE],
-      maSupplierPrice: record.fields[FIELD_IDS.MATERIAL_MA_SUPPLIER_PRICE],
-      idRetailPrice: record.fields[FIELD_IDS.MATERIAL_ID_RETAIL_PRICE],
-      maRetailPrice: record.fields[FIELD_IDS.MATERIAL_MA_RETAIL_PRICE],
-      categoryIds: record.fields[FIELD_IDS.MATERIAL_CATEGORY] || [],
-      productIds: record.fields[FIELD_IDS.MATERIAL_PRODUCT] || [],
-      _raw: record
-    }));
+    console.log('获取的物料记录:', data.records); // 确保记录存在
+
+    return data.records.map(record => {
+      console.log('当前记录字段:', record.fields); // 添加调试信息
+      return {
+        id: record.id,
+        name: record.fields['Internal Name'], // 物料名称
+        nameID: record.fields['Indonesia Name'], // 物料ID
+        nameMO: record.fields['Macau Name'], // 物料MO
+        bomCode: record.fields['BOM Code'], // BOM代码
+        hsCode: record.fields['HS Code'], // HS代码
+        imageUrl: record.fields['IMG']?.[0]?.url, // 图片
+        costPrice: record.fields['China Cost'], // 成本
+        idSupplierPrice: record.fields['ID Supplier Price'], // 供应商价格ID
+        maSupplierPrice: record.fields['MA Supplier Price'], // MA供应商价格
+        idRetailPrice: record.fields['ID Retail Price'], // 零售价格ID
+        maRetailPrice: record.fields['MA Retail Price'], // MA零售价格
+        categoryIds: record.fields['Linked Category'] || [], // 分类
+        productIds: record.fields['Linked Product'] || [], // 产品
+        usage: record.fields['Usage'], // 用量
+        _raw: record
+      };
+    });
   } catch (error) {
     console.error('获取物料详情错误:', error);
     throw error;
