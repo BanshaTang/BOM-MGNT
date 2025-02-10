@@ -54,21 +54,23 @@ const Products = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h1>产品列表</h1>
-      <Space style={{ marginBottom: 20 }}>
+      {/* 筛选项容器 */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
         <Select
           placeholder="选择车型"
           onChange={value => setSelectedType(value)}
-          style={{ width: 200 }}
+          style={{ flex: '0 0 200px' }} // 设置为固定宽度 200px
         >
           <Option value="">所有车型</Option>
           {types.map(type => (
             <Option key={type} value={type}>{type}</Option>
           ))}
         </Select>
+
         <Select
           placeholder="选择颜色"
           onChange={value => setSelectedColor(value)}
-          style={{ width: 200 }}
+          style={{ flex: '0 0 200px' }} // 设置为固定宽度 200px
         >
           <Option value="">所有颜色</Option>
           {colors.map(color => (
@@ -79,22 +81,23 @@ const Products = () => {
         <Select
           placeholder="选择性能"
           onChange={value => setSelectedSpecs(value)}
-          style={{ width: '100%', marginBottom: '10px' }}
+          style={{ flex: '0 0 200px' }} // 设置为固定宽度 200px
         >
           {Array.from(new Set(products.map(product => product.specs))).map(spec => (
             <Option key={spec} value={spec}>{spec}</Option>
           ))}
         </Select>
+
         <Select
           placeholder="选择市场"
           onChange={value => setSelectedMarket(value)}
-          style={{ width: '100%', marginBottom: '20px' }}
+          style={{ flex: '0 0 200px' }} // 设置为固定宽度 200px
         >
           {Array.from(new Set(products.map(product => product.market))).map(market => (
             <Option key={market} value={market}>{market}</Option>
           ))}
         </Select>
-      </Space>
+      </div>
 
       {/* 产品列表 */}
       <Row gutter={16}>
