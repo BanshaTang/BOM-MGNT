@@ -88,6 +88,7 @@ const Materials = () => {
 
   return (
     <div>
+       <h1>物料列表</h1>
       <Space style={{ marginBottom: 20 }}>
         <Search
           placeholder="搜索物料名称或料号"
@@ -161,9 +162,18 @@ const Materials = () => {
                     <Tag color="blue">
                       关联类目: {material.categoryIds.map(id => categories[id] || '未知').join(', ') || '无'}
                     </Tag>
-                    <Tag color="orange">
-                      关联产品: {material.productIds.map(id => products[id] || '未知').join(', ') || '无'}
-                    </Tag>
+                    <div style={{ margin: '10px 0' }}>
+                      <strong>关联产品:</strong>
+                      <ul>
+                        {material.productIds.length > 0 ? (
+                          material.productIds.map(id => (
+                            <li key={id}>{products[id] || '未知'}</li>
+                          ))
+                        ) : (
+                          <li>无</li>
+                        )}
+                      </ul>
+                    </div>
                   </>
                 }
               />
