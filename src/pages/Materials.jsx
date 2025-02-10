@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { List, Card, message, Input, Select, Space, Tag, Spin } from 'antd';
-import { getMaterials } from '../utils/api';
+import { getMaterials, getCategories, getProducts } from '../utils/api';
 
 const { Search } = Input;
 const { Option } = Select;
 
 const Materials = () => {
   const [materials, setMaterials] = useState([]);
+  const [categories, setCategories] = useState({});
+  const [products, setProducts] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
@@ -31,7 +33,37 @@ const Materials = () => {
   }, []);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        console.log('获取的类目数据:', data);
+        const categoryMap = data.reduce((acc, category) => {
+          acc[category.id] = category.name;
+          return acc;
+        }, {});
+        console.log('类目映射:', categoryMap);
+        setCategories(categoryMap);
+      } catch (error) {
+        console.error('获取类目失败:', error);
+      }
+    };
+
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts();
+        const productMap = data.reduce((acc, product) => {
+          acc[product.id] = product.name;
+          return acc;
+        }, {});
+        setProducts(productMap);
+      } catch (error) {
+        console.error('获取产品失败:', error);
+      }
+    };
+
     fetchMaterials();
+    fetchCategories();
+    fetchProducts();
   }, [fetchMaterials]);
 
   const filteredMaterials = materials.filter(material => 
@@ -107,19 +139,28 @@ const Materials = () => {
               }}
             >
               <Card.Meta
-                title={material.name || '未命名'}
+                title={`${material.name || '未命名'} | ${material.nameID || '未命名'}`}
                 description={
                   <>
                     <p>料号: {material.bomCode}</p>
+                    <p>用量: {material.usage}</p>
+                    <p>成本价: {material.costPrice}</p>
+                    <p>印尼提货价: {material.idSupplierPrice}</p>
+                    <p>澳门提货价: {material.maSupplierPrice}</p>
+                    <p>印尼零售价: {material.idRetailPrice}</p>
+                    <p>澳门零售价: {material.maRetailPrice}</p>
                     <Tag color="green">成本价: {material.costPrice || '未定'}</Tag>
-                    {material.moRetailPrice && (
+                    {material.maRetailPrice && (
                       <Tag color="blue">澳门零售价: {material.maRetailPrice}</Tag>
                     )}
                     {material.idRetailPrice && (
                       <Tag color="purple">印尼零售价: {material.idRetailPrice}</Tag>
                     )}
                     <Tag color="blue">
-                      用量: {material.usage || '未定'}
+                      关联类目: {material.categoryIds.map(id => {
+                        console.log('当前类目ID:', id);
+                        return categories[id] || '未知';
+                      }).join(', ') || '无'}
                     </Tag>
                   </>
                 }

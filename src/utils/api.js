@@ -112,10 +112,16 @@ export const getCategories = async () => {
     }
 
     const data = await response.json();
+    console.log('获取的类目数据:', data); // 打印获取的类目数据
+
+    // 确保 data.records 是一个数组
+    if (!Array.isArray(data.records)) {
+      throw new Error('获取类目数据失败，返回的数据不是数组');
+    }
+
     return data.records.map(record => ({
-      id: record.id,
-      fields: record.fields, // 确保返回 fields
-      _raw: record
+      id: record.id, // 获取 ID
+      name: record.fields.Name // 获取名称
     }));
   } catch (error) {
     console.error('获取物料分类错误:', error);
