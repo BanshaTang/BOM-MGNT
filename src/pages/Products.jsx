@@ -7,20 +7,20 @@ const { Option } = Select;
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const [selectedType, setSelectedType] = useState(''); // 车型筛选
   const [selectedColor, setSelectedColor] = useState(''); // 颜色筛选
 
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      setError(false);
+      setError(null);
       const data = await getProducts();
       console.log(data); // 添加调试信息
       setProducts(data);
     } catch (error) {
       console.error('获取产品列表失败:', error);
-      setError(true);
+      setError(error.message);
       message.error('获取产品列表失败');
     } finally {
       setLoading(false);
@@ -38,7 +38,7 @@ const Products = () => {
   }
 
   if (error) {
-    return <div>发生错误，请重试。</div>;
+    return <div>错误: {error}</div>;
   }
 
   if (products.length === 0) {
@@ -89,17 +89,17 @@ const Products = () => {
             <Card
               hoverable
               cover={
-                product.imageUrl && (
+                product.img && (
                   <img
-                    src={product.imageUrl}
-                    alt={product.modelName}
+                    src={product.img}
+                    alt={product.name}
                     style={{ height: 200 }}
                   />
                 )
               }
             >
               <Card.Meta
-                title={product.modelName}
+                title={product.name}
                 description={
                   <>
                     <p>车型: {product.type || '未提供'}</p>

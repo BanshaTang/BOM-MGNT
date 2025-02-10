@@ -55,6 +55,7 @@ const Materials = () => {
           acc[product.id] = product.name;
           return acc;
         }, {});
+        console.log('产品映射:', productMap);
         setProducts(productMap);
       } catch (error) {
         console.error('获取产品失败:', error);
@@ -136,6 +137,7 @@ const Materials = () => {
               onClick={() => {
                 setSelectedMaterial(material);
                 console.log(`选择物料: ${material.name}`);
+                console.log('当前物料的产品 ID:', material.productIds);
               }}
             >
               <Card.Meta
@@ -157,10 +159,10 @@ const Materials = () => {
                       <Tag color="purple">印尼零售价: {material.idRetailPrice}</Tag>
                     )}
                     <Tag color="blue">
-                      关联类目: {material.categoryIds.map(id => {
-                        console.log('当前类目ID:', id);
-                        return categories[id] || '未知';
-                      }).join(', ') || '无'}
+                      关联类目: {material.categoryIds.map(id => categories[id] || '未知').join(', ') || '无'}
+                    </Tag>
+                    <Tag color="orange">
+                      关联产品: {material.productIds.map(id => products[id] || '未知').join(', ') || '无'}
                     </Tag>
                   </>
                 }

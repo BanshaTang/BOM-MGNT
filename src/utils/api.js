@@ -66,30 +66,31 @@ const processAttachment = (attachment) => {
 
 // 获取产品列表
 export const getProducts = async () => {
-  try {
-   
-    const records = await base(TABLE_IDS.PRODUCTS)
-      .select({
-        maxRecords: 100,
-        view: 'Grid view'
-      })
-      .all();
-    
-    return records.map(record => ({
-      id: record.id,
-      modelName: record.get('Type Name'),
-      type: record.get('Type'),
-      specs: record.get('Specs'),
-      market: record.get('Market'),
-      color: record.get('Color'),
-      imageUrl: record.get('IMG')?.[0]?.url,
-      materialIds: record.get('Materials') || [],
-      _raw: record
-    }));
-  } catch (error) {
-    
-    throw error;
+  const response = await fetch(`${BASE_URL}/${BASE_ID}/${TABLE_IDS.PRODUCTS}?maxRecords=100&view=Grid%20view`, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}` // 替换为你的实际 API 密钥
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`网络错误: ${response.status}`);
   }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data.records)) {
+    throw new Error('获取产品数据失败，返回的数据不是数组');
+  }
+
+  return data.records.map(record => ({
+    id: record.id,
+    name: record.fields['Type Name'] || '未提供', // 车型
+    color: record.fields.Color || '未提供', // 颜色
+    market: record.fields.Market || '未提供', // 市场
+    img: record.fields.IMG ? record.fields.IMG[0].url : '', // 确保提取图片 URL
+    specs: record.fields.Specs || '未提供', // 性能
+    type: record.fields.Type || '未提供' // 类型
+  }));
 };
 
 // 获取物料分类列表
