@@ -16,6 +16,12 @@ const Materials = () => {
   const [priceSort, setPriceSort] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null); // 新增状态
 
+  // 获取当前用户信息
+  const username = localStorage.getItem('username'); // 获取当前用户名
+  const isAdmin = username === 'admin';
+  const isUser = username === 'user1'; // 假设 user1 是 user_id
+  const isUserMA = username === 'user_ma'; // 假设 user_ma 是 user_ma
+
   const fetchMaterials = useCallback(async () => {
     try {
       setLoading(true);
@@ -23,7 +29,6 @@ const Materials = () => {
       const data = await getMaterials();
       console.log('获取的物料数据:', data);
       setMaterials(data);
-      console.log('当前物料状态:', materials);
     } catch (error) {
       console.error('获取物料详情失败:', error);
       setError(true);
@@ -37,12 +42,10 @@ const Materials = () => {
     const fetchCategories = async () => {
       try {
         const data = await getCategories();
-        console.log('获取的类目数据:', data);
         const categoryMap = data.reduce((acc, category) => {
           acc[category.id] = category.name;
           return acc;
         }, {});
-        console.log('类目映射:', categoryMap);
         setCategories(categoryMap);
       } catch (error) {
         console.error('获取类目失败:', error);
@@ -56,7 +59,6 @@ const Materials = () => {
           acc[product.id] = product.name;
           return acc;
         }, {});
-        console.log('产品映射:', productMap);
         setProducts(productMap);
       } catch (error) {
         console.error('获取产品失败:', error);
@@ -72,14 +74,14 @@ const Materials = () => {
     material.name && material.name.toLowerCase().includes(searchText.toLowerCase())
   );
   const filteredByCategory = selectedCategory 
-  ? filteredMaterials.filter(material => material.categoryIds.includes(selectedCategory))
-  : filteredMaterials;
+    ? filteredMaterials.filter(material => material.categoryIds.includes(selectedCategory))
+    : filteredMaterials;
   const filteredAndSortedMaterials = filteredByCategory
-  .sort((a, b) => {
-    if (!priceSort) return 0;
-    if (priceSort === 'asc') return a.costPrice - b.costPrice;
-    return b.costPrice - a.costPrice;
-  });
+    .sort((a, b) => {
+      if (!priceSort) return 0;
+      if (priceSort === 'asc') return a.costPrice - b.costPrice;
+      return b.costPrice - a.costPrice;
+    });
 
   if (loading) {
     return <Spin tip="加载中..." />;
@@ -89,9 +91,39 @@ const Materials = () => {
     return <div>发生错误，请重试。</div>;
   }
 
+  const renderPriceTags = (material) => {
+    const tags = [];
+
+    if (isAdmin) {
+      tags.push(<p key="costPrice">成本价: {material.costPrice}</p>);
+      tags.push(<p key="macauPickupPrice">澳门提货价: {material.maSupplierPrice}</p>);
+      tags.push(<p key="indonesiaPickupPrice">印尼提货价: {material.idSupplierPrice}</p>);
+      tags.push(<p key="macauRetailPrice">澳门零售价: {material.maRetailPrice}</p>);
+      tags.push(<p key="indonesiaRetailPrice">印尼零售价: {material.idRetailPrice}</p>);
+    } else if (username === 'user_id') { // 针对 user_id 用户
+      // user_id 用户隐藏成本价、澳门提货价和澳门零售价
+      // 只显示印尼提货价和印尼零售价
+      if (material.idSupplierPrice) {
+        tags.push(<p key="indonesiaPickupPriceTag">印尼提货价: {material.idSupplierPrice}</p>);
+      }
+      if (material.idRetailPrice) {
+        tags.push(<p key="indonesiaRetailPriceTag">印尼零售价: {material.idRetailPrice}</p>);
+      }
+    } else if (isUserMA) { // 针对 user_ma 用户
+      // user_ma 用户隐藏成本价、印尼提货价和印尼零售价
+      // 只显示澳门提货价和澳门零售价
+      tags.push(<p key="macauPickupPriceTag">澳门提货价: {material.maSupplierPrice}</p>);
+      tags.push(<p key="macauRetailPriceTag">澳门零售价: {material.maRetailPrice}</p>);
+      // 隐藏印尼提货价和印尼零售价
+      // 不再添加印尼提货价和印尼零售价的显示逻辑
+    }
+
+    return tags;
+  };
+
   return (
     <div>
-       <h1>物料列表</h1>
+      <h1>物料列表</h1>
       <Space style={{ marginBottom: 20 }}>
         <Search
           placeholder="搜索物料名称或料号"
@@ -110,16 +142,16 @@ const Materials = () => {
           <Option value="desc">价格从高到低</Option>
         </Select>
         <Select
-  value={selectedCategory}
-  onChange={setSelectedCategory}
-  style={{ width: 200 }}
-  placeholder="筛选类目"
->
-  <Option value={null}>所有类目</Option>
-  {Object.entries(categories).map(([id, name]) => (
-    <Option key={id} value={id}>{name}</Option>
-  ))}
-</Select>
+          value={selectedCategory}
+          onChange={setSelectedCategory}
+          style={{ width: 200 }}
+          placeholder="筛选类目"
+        >
+          <Option value={null}>所有类目</Option>
+          {Object.entries(categories).map(([id, name]) => (
+            <Option key={id} value={id}>{name}</Option>
+          ))}
+        </Select>
         <span>
           找到 {filteredAndSortedMaterials.length} 个物料
         </span>
@@ -161,18 +193,7 @@ const Materials = () => {
                   <>
                     <p>料号: {material.bomCode}</p>
                     <p>用量: {material.usage}</p>
-                    <p>成本价: {material.costPrice}</p>
-                    <p>印尼提货价: {material.idSupplierPrice}</p>
-                    <p>澳门提货价: {material.maSupplierPrice}</p>
-                    <p>印尼零售价: {material.idRetailPrice}</p>
-                    <p>澳门零售价: {material.maRetailPrice}</p>
-                    <Tag color="green">成本价: {material.costPrice || '未定'}</Tag>
-                    {material.maRetailPrice && (
-                      <Tag color="blue">澳门零售价: {material.maRetailPrice}</Tag>
-                    )}
-                    {material.idRetailPrice && (
-                      <Tag color="purple">印尼零售价: {material.idRetailPrice}</Tag>
-                    )}
+                    {renderPriceTags(material)}
                     <Tag color="blue">
                       关联类目: {material.categoryIds.map(id => categories[id] || '未知').join(', ') || '无'}
                     </Tag>

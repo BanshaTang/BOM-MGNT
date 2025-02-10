@@ -10,7 +10,8 @@ const Login = () => {
   // 假设的用户数据，您可以根据需要替换为从数据库或API获取的用户数据
   const validUsers = [
     { username: 'admin', password: 'admin123' },
-    { username: 'user1', password: 'user123' }
+    { username: 'user_id', password: 'userid123' },
+    { username: 'user_ma', password: 'userma123' },
   ];
 
   const onFinish = (values) => {
