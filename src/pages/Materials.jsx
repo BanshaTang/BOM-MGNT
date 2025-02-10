@@ -14,6 +14,7 @@ const Materials = () => {
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [priceSort, setPriceSort] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null); // 新增状态
 
   const fetchMaterials = useCallback(async () => {
     try {
@@ -70,13 +71,15 @@ const Materials = () => {
   const filteredMaterials = materials.filter(material => 
     material.name && material.name.toLowerCase().includes(searchText.toLowerCase())
   );
-
-  const filteredAndSortedMaterials = filteredMaterials
-    .sort((a, b) => {
-      if (!priceSort) return 0;
-      if (priceSort === 'asc') return a.costPrice - b.costPrice;
-      return b.costPrice - a.costPrice;
-    });
+  const filteredByCategory = selectedCategory 
+  ? filteredMaterials.filter(material => material.categoryIds.includes(selectedCategory))
+  : filteredMaterials;
+  const filteredAndSortedMaterials = filteredByCategory
+  .sort((a, b) => {
+    if (!priceSort) return 0;
+    if (priceSort === 'asc') return a.costPrice - b.costPrice;
+    return b.costPrice - a.costPrice;
+  });
 
   if (loading) {
     return <Spin tip="加载中..." />;
@@ -106,6 +109,17 @@ const Materials = () => {
           <Option value="asc">价格从低到高</Option>
           <Option value="desc">价格从高到低</Option>
         </Select>
+        <Select
+  value={selectedCategory}
+  onChange={setSelectedCategory}
+  style={{ width: 200 }}
+  placeholder="筛选类目"
+>
+  <Option value={null}>所有类目</Option>
+  {Object.entries(categories).map(([id, name]) => (
+    <Option key={id} value={id}>{name}</Option>
+  ))}
+</Select>
         <span>
           找到 {filteredAndSortedMaterials.length} 个物料
         </span>
