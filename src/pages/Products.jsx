@@ -101,11 +101,7 @@ const Products = () => {
 
       {/* 产品列表 */}
       <Row gutter={16}>
-        {products
-          .filter(product => 
-            (!selectedSpecs || product.specs === selectedSpecs) &&
-            (!selectedMarket || product.market === selectedMarket)
-          )
+        {filteredProducts
           .map(product => (
             <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
               <Card 
@@ -114,9 +110,9 @@ const Products = () => {
                 style={{ marginBottom: '20px' }}
               >
                 <p>车型: {product.type || '未提供'}</p>
-                    <p>市场: {product.market}</p>
-                    <p>性能: {product.specs || '未提供'}</p>
-                    <p>颜色: {product.color || '未提供'}</p>
+                <p>市场: {product.market}</p>
+                <p>性能: {product.specs || '未提供'}</p>
+                <p>颜色: {product.color || '未提供'}</p>
               </Card>
             </Col>
           ))}
