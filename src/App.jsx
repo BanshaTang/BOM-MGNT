@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Products from './pages/Products';
 import Categories from './pages/Categories';
 import Materials from './pages/Materials';
-import PrivateRoute from './components/PrivateRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import './styles/global.css';
 
@@ -28,7 +28,7 @@ function App() {
             <Route
               path="/"
               element={
-                <PrivateRoute>
+                <ProtectedRoute>
                   <Tabs activeKey={activeKey} onChange={handleTabChange}>
                     <TabPane tab="Products" key="products">
                       <Products />
@@ -40,7 +40,7 @@ function App() {
                       <Materials />
                     </TabPane>
                   </Tabs>
-                </PrivateRoute>
+                </ProtectedRoute>
               }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
