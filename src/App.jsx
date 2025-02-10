@@ -8,6 +8,7 @@ import Categories from './pages/Categories';
 import Materials from './pages/Materials';
 import PrivateRoute from './components/PrivateRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import './styles/global.css';
 
 const { TabPane } = Tabs;
 

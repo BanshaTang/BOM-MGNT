@@ -1,0 +1,21 @@
+/* src/styles/global.css */
+
+/* 全局重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 全局字体 */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* 产品图片样式 */
+.product-image {
+  width: 80%; /* 动态宽度 */
+}
+
+/* 其他全局样式... */

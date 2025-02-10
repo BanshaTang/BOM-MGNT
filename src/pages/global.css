@@ -1,0 +1,26 @@
+/* src/styles/global.css */
+
+/* 全局重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 全局字体 */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* 产品图片样式 */
+.product-image {
+  padding: 5%;
+}
+
+/* 响应式布局 */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* 居中对齐 */
+}

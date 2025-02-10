@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, Card, message, Select, Space } from 'antd';
+import { List, Card, message, Select, Space, Row, Col, Spin, Alert } from 'antd';
 import { getProducts } from '../utils/api';
 
 const { Option } = Select;
@@ -10,6 +10,8 @@ const Products = () => {
   const [error, setError] = useState(null);
   const [selectedType, setSelectedType] = useState(''); // 车型筛选
   const [selectedColor, setSelectedColor] = useState(''); // 颜色筛选
+  const [selectedSpecs, setSelectedSpecs] = useState(null); // 筛选性能
+  const [selectedMarket, setSelectedMarket] = useState(null); // 筛选市场
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -33,17 +35,8 @@ const Products = () => {
 
   console.log(products); // 添加调试信息
 
-  if (loading) {
-    return <div>加载中...</div>;
-  }
-
-  if (error) {
-    return <div>错误: {error}</div>;
-  }
-
-  if (products.length === 0) {
-    return <div>没有找到产品。</div>;
-  }
+  if (loading) return <Spin size="large" />;
+  if (error) return <Alert message="错误" description={error} type="error" />;
 
   // 获取所有车型和颜色选项
   const types = [...new Set(products.map(p => p.type))];
@@ -53,11 +46,13 @@ const Products = () => {
   const filteredProducts = products.filter(product => {
     const matchesType = selectedType ? product.type === selectedType : true;
     const matchesColor = selectedColor ? product.color === selectedColor : true;
-    return matchesType && matchesColor;
+    const matchesSpecs = selectedSpecs ? product.specs === selectedSpecs : true;
+    const matchesMarket = selectedMarket ? product.market === selectedMarket : true;
+    return matchesType && matchesColor && matchesSpecs && matchesMarket;
   });
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h1>产品列表</h1>
       <Space style={{ marginBottom: 20 }}>
         <Select
@@ -80,39 +75,49 @@ const Products = () => {
             <Option key={color} value={color}>{color}</Option>
           ))}
         </Select>
+
+        <Select
+          placeholder="选择性能"
+          onChange={value => setSelectedSpecs(value)}
+          style={{ width: '100%', marginBottom: '10px' }}
+        >
+          {Array.from(new Set(products.map(product => product.specs))).map(spec => (
+            <Option key={spec} value={spec}>{spec}</Option>
+          ))}
+        </Select>
+        <Select
+          placeholder="选择市场"
+          onChange={value => setSelectedMarket(value)}
+          style={{ width: '100%', marginBottom: '20px' }}
+        >
+          {Array.from(new Set(products.map(product => product.market))).map(market => (
+            <Option key={market} value={market}>{market}</Option>
+          ))}
+        </Select>
       </Space>
-      <List
-        grid={{ gutter: 16, column: 4 }}
-        dataSource={filteredProducts}
-        renderItem={product => (
-          <List.Item>
-            <Card
-              hoverable
-              cover={
-                product.img && (
-                  <img
-                    src={product.img}
-                    alt={product.name}
-                    style={{ height: 200 }}
-                  />
-                )
-              }
-            >
-              <Card.Meta
+
+      {/* 产品列表 */}
+      <Row gutter={16}>
+        {products
+          .filter(product => 
+            (!selectedSpecs || product.specs === selectedSpecs) &&
+            (!selectedMarket || product.market === selectedMarket)
+          )
+          .map(product => (
+            <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
+              <Card 
                 title={product.name}
-                description={
-                  <>
-                    <p>车型: {product.type || '未提供'}</p>
+                cover={<img alt={product.name} src={product.img} className="product-image" style={{ padding: '5%' }} />}
+                style={{ marginBottom: '20px' }}
+              >
+                <p>车型: {product.type || '未提供'}</p>
                     <p>市场: {product.market}</p>
                     <p>性能: {product.specs || '未提供'}</p>
                     <p>颜色: {product.color || '未提供'}</p>
-                  </>
-                }
-              />
-            </Card>
-          </List.Item>
-        )}
-      />
+              </Card>
+            </Col>
+          ))}
+      </Row>
     </div>
   );
 };
