@@ -95,39 +95,32 @@ export const getProducts = async () => {
 
 // 获取物料分类列表
 export const getCategories = async () => {
-  try {
-    const response = await fetch(
-      `${BASE_URL}/${BASE_ID}/${TABLE_IDS.CATEGORIES}?maxRecords=100&view=Grid%20view`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`API error: ${error.error?.message || 'Unknown error'}`);
+  const response = await fetch(`${BASE_URL}/${BASE_ID}/${TABLE_IDS.CATEGORIES}?maxRecords=100&view=Grid%20view`, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}` // 替换为你的实际 API 密钥
     }
-
-    const data = await response.json();
-    console.log('获取的类目数据:', data); // 打印获取的类目数据
-
-    // 确保 data.records 是一个数组
-    if (!Array.isArray(data.records)) {
-      throw new Error('获取类目数据失败，返回的数据不是数组');
-    }
-
-    return data.records.map(record => ({
-      id: record.id, // 获取 ID
-      name: record.fields.Name // 获取名称
-    }));
-  } catch (error) {
-    console.error('获取物料分类错误:', error);
-    throw error;
+  });
+  
+  if (!response.ok) {
+    throw new Error(`网络错误: ${response.status}`);
   }
+
+  const data = await response.json();
+
+  if (!Array.isArray(data.records)) {
+    throw new Error('获取类别数据失败，返回的数据不是数组');
+  }
+
+  return data.records.map(record => {
+    console.log('当前记录:', record.fields); // 打印当前记录的字段
+    const materials = record.fields['CATEGORY_MATERIALS'] || []; // 提取 CATEGORY_MATERIALS 字段
+    console.log('物料 ID:', materials); // 打印物料 ID
+    return {
+      id: record.id,
+      name: record.fields['Name'] || '未提供',
+      materials: record.fields['Materials'] || '未提供', // 确保提取为数组
+    };
+  });
 };
 
 // 获取物料详情列表
